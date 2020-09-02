@@ -1,0 +1,11 @@
+stable_baselines==2.10.0
+numpy==1.18.5
+matplotlib==3.2.1
+pandas==1.0.4
+scipy==1.4.1
+gym==0.17.2
+torch==1.6.0
+tqdm==4.48.2
+tensorflow==1.5.0
+bayesian-optimization==1.2.0
+mpi4py==3.0.3
