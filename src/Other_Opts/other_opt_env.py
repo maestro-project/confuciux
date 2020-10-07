@@ -7,7 +7,7 @@ script_dir = os.path.dirname(__file__)
 module_path = os.path.abspath(os.path.join(script_dir, '../../'))
 if module_path not in sys.path:
     sys.path.insert(0,module_path)
-from src.utils.hw_spec_get import *
+from src.utils.get_action_space import *
 import copy
 from tqdm import tqdm
 from bayes_opt import BayesianOptimization
@@ -598,8 +598,8 @@ class MaestroEnvironment(object):
             m_type = m_type_dicts[int(dimension[-1])]
         else:
             m_type = "CONV"
-        with open("../../data/df_file/{}_f.m".format(dataflow), "r") as fd:
-            with open("../../data/df_file/dpt_f.m", "r") as fdpt:
+        with open("../../data/dataflow/{}.m".format(dataflow), "r") as fd:
+            with open("../../data/dataflow/dpt.m", "r") as fdpt:
                 with open("{}.m".format(m_file), "w") as fo:
                     fo.write("Constant KTileSz {};\n".format(KTileSz))
                     fo.write("Constant CTileSz {};\n".format(CTileSz))

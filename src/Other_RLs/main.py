@@ -11,8 +11,7 @@ from other_rl_env import MaestroEnvironment
 import argparse
 from stable_baselines.common.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise, AdaptiveParamNoiseSpec
 import pickle
-from src.utils.hw_spec_get import *
-from src.utils.utils import *
+from src.utils.get_action_space import *
 
 
 import gym
@@ -85,22 +84,22 @@ class NormalizeActionWrapper(gym.Wrapper):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--alg', type=str, default="PPO2", help='Algorithm: [PPO2, A2C, ACKTR, SAC, TD3, DDPG]')
+    parser.add_argument('--alg', type=str, default="A2C", help='Algorithm: [PPO2, A2C, ACKTR, SAC, TD3, DDPG]',
+                        choices=["PPO2", "A2C", "ACKTR", "SAC", "TD3", "DDPG"] )
     parser.add_argument('--ent', default=0.01, type=float, help='use pre-trained')
     parser.add_argument('--lam', default=0.95, type=float, help='use pre-trained')
     parser.add_argument('--discount', default=0.99, type=float, help='use pre-trained')
     parser.add_argument('--outdir', type=str, default="outdir", help='output directiory')
-    parser.add_argument('--model_def', type=str, default="vgg16", help='The experimenting model.')
+    parser.add_argument('--model', type=str, default="example", help='The experimenting model.')
     parser.add_argument('--fitness', type=str, default="latency", help='The objective.')
     parser.add_argument('--cstr', type=str, default="area", help='The constraint.')
-    parser.add_argument('--platform', type=str, default="cloud", help='[Cloud, IoT, eIoT].')
-    parser.add_argument('--epochs', type=int, default=20, help='Number of epochs')
+    parser.add_argument('--mul', type=float, default=0.5, help='The resource ratio, the design is allowed to use.')
+    parser.add_argument('--epochs', type=int, default=500, help='Number of epochs')
     parser.add_argument('--gpu', default=0, type=int, help='which gpu')
     parser.add_argument('--df', default="shi", type=str, help='The dataflow strategy.')
     opt = parser.parse_args()
 
-    ratio = get_platform_ratio(opt.platform)
-
+    ratio = opt.mul
     now = datetime.now()
     now_date = "{}".format(now.date())
     now_time = "{}".format(now.time())
@@ -110,7 +109,7 @@ if __name__ == "__main__":
     alg = "REINFORCE"
     outdir = opt.outdir
     outdir = os.path.join("../../", outdir)
-    exp_name = "{}_F-{}_C-{}_platform-{}_DF-{}_{}_{}".format(opt.model_def, opt.fitness, opt.cstr, opt.platform, opt.df, opt.alg,dis_or_cont)
+    exp_name = "{}_F-{}_C-{}-Mul-{}_DF-{}_{}_{}".format(opt.model, opt.fitness, opt.cstr, opt.mul, opt.df, opt.alg,dis_or_cont)
 
     outdir_exp = os.path.join(outdir, exp_name)
     os.makedirs(outdir, exist_ok=True)
@@ -119,9 +118,9 @@ if __name__ == "__main__":
 
 
     action_space, action_bound, action_bottom = get_action_space()
-    m_file_path = "../../data/modelfile/"
-    m_file = os.path.join(m_file_path, opt.model_def + "_m.csv")
-    df = pd.read_csv(m_file, header=None)
+    m_file_path = "../../data/model/"
+    m_file = os.path.join(m_file_path, opt.model + ".csv")
+    df = pd.read_csv(m_file)
     model_defs = df.to_numpy()
     _, dim_size = model_defs.shape
 
@@ -139,11 +138,7 @@ if __name__ == "__main__":
     model_def = [512,512,512]
     # model_def = [512,512,512,512,512]
     noise_par = 0.05
-    m_file_path ="../../data/modelfile/"
-    m_file = os.path.join(m_file_path, opt.model_def + "_m.csv")
-    df = pd.read_csv(m_file,header=None)
-    model_defs = df.to_numpy()
-    _,dim_size = model_defs.shape
+
 
     time_steps = opt.epochs * len(model_defs)
     action_space, action_bound, action_bottom = get_action_space()
@@ -243,24 +238,30 @@ if __name__ == "__main__":
             fd.write("Used constraint: {}\n".format(best_sol_ctr))
             fd.write(
                 "Set constraint: {} [Constraint range : ({}, {})]\n".format(set_constraint, min_constraint, max_constraint))
-            fd.write("Model: {}\n".format(opt.model_def))
+            fd.write("Model: {}\n".format(opt.model))
             fd.write("{}".format(model_defs))
 
         #
+        font = {
+            'weight': 'bold',
+            'size': 12}
+        import matplotlib
+        matplotlib.rc('font', **font)
+
         fig = plt.figure(0)
         ax = fig.add_subplot(111)
-        plt.plot(np.arange(len(best_rewards)), np.abs(np.array(best_rewards)), label="RL")
+        plt.plot(np.arange(len(best_rewards)), np.abs(np.array(best_rewards)), label="{}".format(opt.alg), linewidth=5)
         # plt.plot(np.arange(len(reward_rec)), np.abs(np.array(reward_rec)), label="RL_track")
         plt.figtext(0, 0, "best_fitness: {}".format(best_reward_point))
-        plt.figtext(0, 0.05, "Model: {}".format(opt.model_def))
+        plt.figtext(0, 0.05, "Model: {}".format(opt.model))
         plt.yscale("log")
         # plt.xlim(right=200)
         plt.ylabel(opt.fitness)
         plt.legend()
-        # fig.tight_layout()
+        fig.tight_layout()
         plt.xlabel('Episode #')
         plt.savefig(img_file, dpi=300)
-        # plt.show()
+        plt.show()
     finally:
         for f in glob.glob("*.m"):
             os.remove(f)

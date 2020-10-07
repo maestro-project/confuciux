@@ -222,4 +222,4 @@ def mutation(parents, pop,  action_bound, action_bottom, env, fitness_list, rang
             count += 1
         else:
             idx += 1
-    print("Invalid num: {}".format(count))
+    # print("Invalid num: {}".format(count))

@@ -18,8 +18,7 @@ from src.ConfX.rl_confx import Agent
 import pandas as pd
 import copy
 from datetime import datetime
-from src.utils.hw_spec_get import *
-from src.utils.utils import *
+from src.utils.get_action_space import *
 import glob
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -110,11 +109,11 @@ def genetic_search(best_sol, best_reward, action_bound, action_bottom, num_layer
 
     fitness = np.ones((num_population, 2), float) * best_reward
 
-    print("Cases {}: reward: {}".format(0, best_reward_g))
+    # print("Cases {}: reward: {}".format(0, best_reward_g))
     count_non_valid = 0
     for g in range(num_generations):
         gen_best = -float("Inf")
-        num_parents = min(num_parents_init, num_population - count_non_valid)
+        num_parents = max(1, min(num_parents_init, num_population - count_non_valid))
         count_non_valid = 0
 
         parents = ga.select_parents(new_population, fitness,
@@ -147,8 +146,7 @@ def genetic_search(best_sol, best_reward, action_bound, action_bottom, num_layer
             "num_parents_g": num_parents
         }
 
-        print("Gen {}: Gen reward: {}, Best reward: {}".format((g + 1) , gen_best,
-                                                                               best_reward_g))
+        print(f"Gen {g+1}:  Best reward: {best_reward_g[0]:.4e}, Used Constraint: {best_reward_g[1]/env.constraint_value * 100:.1f}%")
 
     return chkpt
 
@@ -161,29 +159,30 @@ def check_sol(sol):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--outdir', type=str, default="outdir", help='output directiory')
-    parser.add_argument('--model_def', type=str, default="vgg16", help='The experimenting model.')
+    parser.add_argument('--model', type=str, default="example", help='The experimenting model.')
     parser.add_argument('--fitness', type=str, default="latency", help='The objective.')
     parser.add_argument('--cstr', type=str, default="area", help='The constraint.')
-    parser.add_argument('--platform', type=str, default="cloud", help='[Cloud, IoT, eIoT].')
-    parser.add_argument('--epochs', type=int, default=100, help='pickle file name')
+    parser.add_argument('--mul', type=float, default=0.5, help='The resource ratio, the design is allowed to use.')
+    parser.add_argument('--epochs', type=int, default=500, help='pickle file name')
     parser.add_argument('--gpu', default=0, type=int, help='which gpu')
     parser.add_argument('--df', default="shi", type=str, help='The dataflow strategy.')
+    parser.add_argument('--alg', type=str, default="RL_GA", help='Please choose from [RL, RL_GA]', choices=["RL", "RL_GA"])
     opt = parser.parse_args()
-    ratio = get_platform_ratio(opt.platform)
+    ratio = opt.mul
     device = 'cuda:' + str(opt.gpu) if torch.cuda.is_available() else 'cpu'
     
 
-    epoch_rl, epoch_ga = opt.epochs* 2//3, opt.epochs//3,
+
     now = datetime.now()
     now_date = "{}".format(now.date())
     now_time = "{}".format(now.time())
     is_discrete = True
     n_acts = 2
     dis_or_cont = "D" if is_discrete else "C"
-    alg = "REINFORCE"
+    alg = opt.alg
     outdir = opt.outdir
     outdir = os.path.join("../../", outdir)
-    exp_name = "{}_F-{}_C-{}_Plt-{}_DF-{}_{}_{}".format(opt.model_def, opt.fitness, opt.cstr, opt.platform, opt.df, alg,
+    exp_name = "{}_F-{}_C-{}_Mul-{}_DF-{}_{}_{}".format(opt.model, opt.fitness, opt.cstr, opt.mul, opt.df, alg,
                                                 dis_or_cont)
 
     outdir_exp = os.path.join(outdir, exp_name)
@@ -201,13 +200,15 @@ if __name__ == "__main__":
 
 
     action_space, action_bound, action_bottom = get_action_space()
-    m_file_path = "../../data/modelfile/"
-    m_file = os.path.join(m_file_path, opt.model_def + "_m.csv")
-    df = pd.read_csv(m_file,header=None)
+    m_file_path = "../../data/model/"
+    m_file = os.path.join(m_file_path, opt.model + ".csv")
+    df = pd.read_csv(m_file)
     model_defs = df.to_numpy()
     _,dim_size = model_defs.shape
 
-
+    using_ga = True if opt.alg =="RL_GA" else False
+    epoch_rl = opt.epochs * 2 // 3 if using_ga else opt.epochs
+    epoch_ga = opt.epochs - epoch_rl
     try:
         # ============================Start Env============================================================================================
 
@@ -255,38 +256,39 @@ if __name__ == "__main__":
         max_constraint = chkpt["ctrs_info"]["max"]
         min_constraint = chkpt["ctrs_info"]["min"]
         reward, constraint = env.exterior_search(best_sol)
-        print("Reward: ", reward)
-        print("Constraint: ", constraint)
+        print(f'RL result: Best reward: {reward:.4e}, Used Constraint: {constraint/env.constraint_value * 100:.1f}%')
+
 
         #========================================================================================================================
 
 
 
         # ============================Do Genetic============================================================================================
-
-        chkpt_g = genetic_search(best_sol, (best_rewards[-1],best_sol_ctr), action_bound, action_bottom,num_generations=epoch_ga,num_layers=len(best_sol))
-        chkpt.update(chkpt_g)
-        with open(chkpt_file, "wb") as fd:
-            pickle.dump(chkpt, fd)
-        chkpt_g = chkpt
+        if using_ga:
+            chkpt_g = genetic_search(best_sol, (best_rewards[-1],best_sol_ctr), action_bound, action_bottom,num_generations=epoch_ga,num_layers=len(best_sol))
+            chkpt.update(chkpt_g)
+            with open(chkpt_file, "wb") as fd:
+                pickle.dump(chkpt, fd)
+            chkpt_g = chkpt
         # ========================================================================================================================
 
 
 
         # ==========================Do plotting ======================================================================================
 
-        best_sol_g = chkpt_g["best_sol_g"]
-        sbest_rewards_g = chkpt_g["best_rewards_g"]
-        sreward_record_g = chkpt_g["reward_record_g"]
-        reward_rec_g = [r for r, c in sreward_record_g]
-        best_rewards_g = [r for r, c in sbest_rewards_g]
-        best_rewards_c = [c for r, c in sbest_rewards_g]
-        best_sol_ctr = best_rewards_c[-1]
+        if using_ga:
+            best_sol_g = chkpt_g["best_sol_g"]
+            sbest_rewards_g = chkpt_g["best_rewards_g"]
+            sreward_record_g = chkpt_g["reward_record_g"]
+            reward_rec_g = [r for r, c in sreward_record_g]
+            best_rewards_g = [r for r, c in sbest_rewards_g]
+            best_rewards_c = [c for r, c in sbest_rewards_g]
+            best_sol_ctr = best_rewards_c[-1]
 
-        best_sol = np.vstack(best_sol_g).astype(int)
-        # best_sol = [a  for A in best_sol for a in A]
-        reward_rec = reward_rec + reward_rec_g
-        best_rewards = best_rewards + best_rewards_g
+            best_sol = np.vstack(best_sol_g).astype(int)
+            # best_sol = [a  for A in best_sol for a in A]
+            reward_rec = reward_rec + reward_rec_g
+            best_rewards = best_rewards + best_rewards_g
         best_reward_point = abs(best_rewards[-1])
         default_min = float("-inf")
 
@@ -304,7 +306,7 @@ if __name__ == "__main__":
             fd.write("Used constraint: {}\n".format(best_sol_ctr))
             fd.write(
                 "Set constraint: {} [Constraint range : ({}, {})]\n".format(set_constraint, min_constraint, max_constraint))
-            fd.write("Model: {}\n".format(opt.model_def))
+            fd.write("Model: {}\n".format(opt.model))
             fd.write("{}".format(model_defs))
 
         #
@@ -314,11 +316,16 @@ if __name__ == "__main__":
         import matplotlib
 
         matplotlib.rc('font', **font)
-        fig = plt.figure(0, figsize=(6, 3))
+        # fig = plt.figure(0, figsize=(6, 3))
+        fig = plt.figure(0)
         ax = fig.add_subplot(111)
         plt.plot(np.arange(len(best_rewards)), np.abs(np.array(best_rewards)), label="ConX", linewidth=5)
+        plt.figtext(0, 0, "best_fitness: {}".format(best_reward_point))
+        plt.figtext(0, 0.05, "Model: {}".format(opt.model))
         plt.yscale("log")
+        plt.ylabel(opt.fitness)
         plt.legend()
+        plt.xlabel('Episode #')
         fig.tight_layout()
         plt.savefig(img_file, dpi=300)
         plt.show()

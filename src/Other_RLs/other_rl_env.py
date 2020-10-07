@@ -7,7 +7,6 @@ import random
 import pickle
 import copy
 from src.utils.hw_spec_get import *
-from src.utils.utils import *
 import gym
 from gym import spaces
 
@@ -473,8 +472,8 @@ class MaestroEnvironment(gym.Env):
             m_type = m_type_dicts[int(dimension[-1])]
         else:
             m_type = "CONV"
-        with open("../../data/df_file/{}_f.m".format(dataflow), "r") as fd:
-            with open("../../data/df_file/dpt_f.m", "r") as fdpt:
+        with open("../../data/dataflow/{}.m".format(dataflow), "r") as fd:
+            with open("../../data/dataflow/dpt.m", "r") as fdpt:
                 with open("{}.m".format(m_file), "w") as fo:
                     fo.write("Constant KTileSz {};\n".format(KTileSz))
                     fo.write("Constant CTileSz {};\n".format(CTileSz))

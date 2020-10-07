@@ -1,0 +1,11 @@
+
+==========ConfuciuX==========
+best rewards: 4999682.0
+best sol:
+ [[58  8]
+ [68  8]]
+Used constraint: 15887390000000.0
+Set constraint: 16254220000000.0 [Constraint range : (726440000000.0, 31782000000000.0)]
+Model: example
+[[ 64  32  56  56   3   3   1]
+ [128  64  56  56   3   3   1]]

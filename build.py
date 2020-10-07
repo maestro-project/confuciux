@@ -7,7 +7,7 @@ dst_path = os.path.join(working_path, dst_path)
 maestro = os.path.join(maestro_dir, "maestro")
 maestro =  os.path.abspath(maestro)
 if os.path.exists(maestro_dir) is False:
-    os.system("git clone https://github.com/maestro-project/maestro-stable.git {}".format(maestro_dir))
+    os.system("git clone https://github.com/maestro-project/maestro.git {}".format(maestro_dir))
     os.chdir(maestro_dir)
     try:
         os.system("scons")

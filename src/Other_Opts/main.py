@@ -5,9 +5,8 @@ script_dir = os.path.dirname(__file__)
 module_path = os.path.abspath(os.path.join(script_dir, '../../'))
 if module_path not in sys.path:
     sys.path.insert(0,module_path)
-from src.utils.hw_spec_get import *
+from src.utils.get_action_space import *
 from other_opt_env import MaestroEnvironment
-from src.utils.utils import *
 from datetime import datetime
 import pickle
 import matplotlib.pyplot as plt
@@ -16,19 +15,21 @@ import glob
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--outdir', type=str, default="outdir", help='output directiory')
-    parser.add_argument('--model_def', type=str, default="vgg16", help='The experimenting model.')
+    parser.add_argument('--model', type=str, default="example", help='The experimenting model.')
     parser.add_argument('--fitness', type=str, default="latency", help='The objective.')
     parser.add_argument('--cstr', type=str, default="area", help='The constraint.')
-    parser.add_argument('--platform', type=str, default="cloud", help='[Cloud, IoT, eIoT].')
-    parser.add_argument('--epochs', type=int, default=100, help='Number of epochs.')
+    parser.add_argument('--mul', type=float, default=0.5, help='The resource ratio, the design is allowed to use.')
+    parser.add_argument('--epochs', type=int, default=500, help='Number of epochs.')
     parser.add_argument('--gpu', type=int, default=0,  help='which gpu')
     parser.add_argument('--df', type=str, default="shi",  help='The dataflow strategy.')
-    parser.add_argument('--alg', type=str, default="bayesian", help='Please choose from [genetic, random, bayesian, anneal, exhaustive]')
+    parser.add_argument('--alg', type=str, default="random", help='Please choose from [genetic, random, bayesian, anneal, exhaustive]'
+                        , choices=["genetic", "random", "bayesian", "anneal", "exhaustive"])
     parser.add_argument('--stride', type=int, default=1, help='Set stride for exhaustive')
 
 
+
     opt = parser.parse_args()
-    ratio = get_platform_ratio(opt.platform)
+    ratio = opt.mul
     method = opt.alg
 
     now = datetime.now()
@@ -40,7 +41,7 @@ if __name__ == "__main__":
     alg = "REINFORCE"
     outdir = opt.outdir
     outdir = os.path.join("../../", outdir)
-    exp_name = "{}_F-{}_C-{}_Plt-{}_DF-{}_{}_{}".format(opt.model_def, opt.fitness, opt.cstr, opt.platform, opt.df, method,
+    exp_name = "{}_F-{}_C-{}_Mul-{}_DF-{}_{}_{}".format(opt.model, opt.fitness, opt.cstr, opt.mul, opt.df, method,
                                                         dis_or_cont)
     outdir_exp = os.path.join(outdir, exp_name)
     os.makedirs(outdir, exist_ok=True)
@@ -52,9 +53,9 @@ if __name__ == "__main__":
     img_file = chkpt_file_t + ".png"
     log_file = chkpt_file_t + ".csv"
     expLog_file = chkpt_file_t + ".log"
-    m_file_path = "../../data/modelfile/"
-    m_file = os.path.join(m_file_path, opt.model_def + "_m.csv")
-    df = pd.read_csv(m_file, header=None)
+    m_file_path = "../../data/model/"
+    m_file = os.path.join(m_file_path, opt.model + ".csv")
+    df = pd.read_csv(m_file)
     model_defs = df.to_numpy()
     _, dim_size = model_defs.shape
     # fd = open(expLog_file, "w")
@@ -134,15 +135,20 @@ if __name__ == "__main__":
             fd.write("Used constraint: {}\n".format(best_sol_ctr))
             fd.write(
                 "Set constraint: {} [Constraint range : ({}, {})]\n".format(set_constraint, min_constraint, max_constraint))
-            fd.write("Model: {}\n".format(opt.model_def))
+            fd.write("Model: {}\n".format(opt.model))
             fd.write("{}".format(model_defs))
 
+        font = {
+            'weight': 'bold',
+            'size': 12}
+        import matplotlib
+        matplotlib.rc('font', **font)
 
         fig = plt.figure(0)
         ax = fig.add_subplot(111)
-        plt.plot(np.arange(len(best_rewards)), np.abs(np.array(best_rewards)), label="{}".format(method))
+        plt.plot(np.arange(len(best_rewards)), np.abs(np.array(best_rewards)), label="{}".format(method), linewidth=5)
         plt.figtext(0, 0, "best_fitness: {}".format(best_reward_point))
-        plt.figtext(0, 0.05, "Model: {}".format(opt.model_def))
+        plt.figtext(0, 0.05, "Model: {}".format(opt.model))
         plt.yscale("log")
         plt.ylabel(opt.fitness)
         plt.legend()

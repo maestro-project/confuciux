@@ -10,7 +10,7 @@ script_dir = os.path.dirname(__file__)
 module_path = os.path.abspath(os.path.join(script_dir, '../../'))
 if module_path not in sys.path:
     sys.path.insert(0,module_path)
-from src.utils.hw_spec_get import *
+from src.utils.get_action_space import *
 
 action_space, action_bound, action_bottom =None, None, None
 df_dict = {1:"dla", 2:"shi", 3:"eye"}
@@ -29,9 +29,8 @@ class MaestroEnvironment(object):
         self.random_file_name = "{}".format(random_file_name)
 
 
-        self.is_gemm = False
         global action_space, action_bound, action_bottom
-        action_space, action_bound, action_bottom = get_action_space(self.is_gemm)
+        action_space, action_bound, action_bottom = get_action_space()
         self.state = np.array([0.5]*8)
         self.last_runtime = 2 ** 64
         self.last_energy = 2**64
@@ -79,6 +78,7 @@ class MaestroEnvironment(object):
         self.prev_reward_whole_eps = 0
         self.exp_table = {}
         self.draw = np.arange(0,self.total_step )
+        self.is_gemm = False
     @property
     def get_state(self):
         """
@@ -184,12 +184,15 @@ class MaestroEnvironment(object):
         if table_entry in self.exp_table:
             reward, constraint = self.exp_table[table_entry]
         else:
-            reward, constraint = self.oberserve_maestro(maestro_state)
+            ret = self.oberserve_maestro(maestro_state)
+            if ret is None:
+                return -1, float("Inf"), -1
+            reward, constraint = ret
             self.exp_table[table_entry] = (reward, constraint)
+        # self.worst_reward = min(reward, self.worst_reward) if self.worst_reward else reward
         if not reward:
             self.sig = -1
-            return -1
-        # self.worst_reward = min(reward, self.worst_reward) if self.worst_reward else reward
+            return -1, float("Inf"), -1
         if self.min_reward == None:
             self.min_reward = reward
         reward_saved = reward.copy()
@@ -419,7 +422,10 @@ class MaestroEnvironment(object):
         if table_entry in self.exp_table:
             reward, constraint = self.exp_table[table_entry]
         else:
-            reward, constraint = self.oberserve_maestro(maestro_state)
+            ret = self.oberserve_maestro(maestro_state)
+            if ret is None:
+                return None, float("Inf")
+            reward, constraint = ret
             self.exp_table[table_entry] = (reward, constraint)
         return reward, constraint
 
@@ -432,9 +438,9 @@ class MaestroEnvironment(object):
         for i in range(len(actions)):
             action = actions[i]
             maestro_state = np.concatenate((self.model_defs[i], action))
-            reward, constraint = self.quick_observe(maestro_state)
-            if reward == None:
-                return None
+            reward, constraint = self.oberserve_maestro(maestro_state)
+            if not reward :
+                return None, float("Inf")
                 # return float("-inf")
             if self.fitness == "thrpt_btnk":
                 min_reward = min(min_reward, reward)
@@ -451,8 +457,8 @@ class MaestroEnvironment(object):
             m_type = m_type_dicts[int(dimension[-1])]
         else:
             m_type = "CONV"
-        with open("../../data/df_file/{}_f.m".format(dataflow), "r") as fd:
-            with open("../../data/df_file/dpt_f.m", "r") as fdpt:
+        with open("../../data/dataflow/{}.m".format(dataflow), "r") as fd:
+            with open("../../data/dataflow/dpt.m", "r") as fdpt:
                 with open("{}.m".format(m_file), "w") as fo:
                     fo.write("Constant KTileSz {};\n".format(KTileSz))
                     fo.write("Constant CTileSz {};\n".format(CTileSz))
