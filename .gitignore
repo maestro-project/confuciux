@@ -50,3 +50,4 @@ Thumbs.db
 .idea
 *.plt
 __pycache__/
+.idea/
