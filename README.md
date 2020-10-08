@@ -50,7 +50,8 @@ python build.py
    * For optimization methods, choose from [genetic, random, bayesian, anneal, exhaustive]
 
 #### Action space ####
-The user can change to different action space if wanted
+The user can change to different action space if wanted.
+
 User can defined customized action space in src/utils/get_action_space.py
 
 ##### To find out all the options
