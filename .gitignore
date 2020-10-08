@@ -47,6 +47,6 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
-*.idea
+.idea
 *.plt
 __pycache__/
