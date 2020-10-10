@@ -317,9 +317,9 @@ class MaestroEnvironment(object):
                 self.start_range = start_range
                 self.end_range = end_range-1
                 pe = action_space[0][random.randint(self.start_range, self.end_range)]
-                bw = action_space[1][random.randint(self.start_range, self.end_range)]
+                bf = action_space[1][random.randint(self.start_range, self.end_range)]
 
-                action = [pe, bw]
+                action = [pe, bf]
                 guess_action.append(action)
 
             reward, total_used_constraint = self.exterior_search(guess_action)
@@ -370,8 +370,8 @@ class MaestroEnvironment(object):
 
 
         for pe in [2**i for i in range(self.start_range, self.end_range+1, stride)]:
-            for bw in [2**i for i in range(self.start_range, self.end_range+1, stride)]:
-                action=[pe, bw]
+            for bf in [2**i for i in range(self.start_range, self.end_range+1, stride)]:
+                action=[pe, bf]
                 guess_action.append(action)
                 self.dfs(left_layers-1, guess_action,stride)
                 guess_action.pop()
@@ -441,9 +441,9 @@ class MaestroEnvironment(object):
         while(True):
             for i in range(num_layers):
                 pe = random.randint(self.start_range, self.end_range)
-                bw = random.randint(self.start_range, self.end_range)
+                bf = random.randint(self.start_range, self.end_range)
 
-                action = np.array([pe, bw],dtype=int)
+                action = np.array([pe, bf],dtype=int)
                 guess_action[i] = action
 
             if 1:
