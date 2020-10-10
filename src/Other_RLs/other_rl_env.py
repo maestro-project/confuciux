@@ -6,7 +6,7 @@ import os
 import random
 import pickle
 import copy
-from src.utils.hw_spec_get import *
+from src.utils.get_action_space import *
 import gym
 from gym import spaces
 
