@@ -37,17 +37,17 @@ python build.py
 
 #### Parameter ####
 * fitness: The fitness objective (latency/ energy)
-* cstr: Constraint (area/ power)
 * df: The dataflow strategy
+* model: The model to run (available model in data/model)
+* cstr: Constraint (area/ power)
 * mul: Resource multiplier. The resource ratio, the design is allowed to use.
     * For each targeting model and the action space definition, the system compute the maximum possible area/power. The system under design is only allowed to use mul * power_max or mul * area_max.    
-* outdir: The output result directory
 * epochs: Number of generation for the optimization
-* model: The model to run (available model in model_dir)
 * alg: The algorithm to run
    * For ConX, choose from [RL, RL_GA]  
    * For RL, choose from [PPO2, A2C, ACKTR, SAC, TD3, DDPG]
    * For optimization methods, choose from [genetic, random, bayesian, anneal, exhaustive]
+* outdir: The output result directory
 
 #### Action space ####
 The user can change to different action space if wanted.
