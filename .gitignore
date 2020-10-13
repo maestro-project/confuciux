@@ -52,3 +52,4 @@ Thumbs.db
 __pycache__/
 .idea/
 /cost_model/*
+!/cost_model
