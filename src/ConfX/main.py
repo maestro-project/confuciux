@@ -167,6 +167,7 @@ if __name__ == "__main__":
     parser.add_argument('--gpu', default=0, type=int, help='which gpu')
     parser.add_argument('--df', default="shi", type=str, help='The dataflow strategy.')
     parser.add_argument('--alg', type=str, default="RL_GA", help='Please choose from [RL, RL_GA]', choices=["RL", "RL_GA"])
+    parser.add_argument('--n_act', type=int, default=2, help='The number of action to make for each layer', choices=[1, 2, 3])
     opt = parser.parse_args()
     ratio = opt.mul
     device = 'cuda:' + str(opt.gpu) if torch.cuda.is_available() else 'cpu'
@@ -177,7 +178,7 @@ if __name__ == "__main__":
     now_date = "{}".format(now.date())
     now_time = "{}".format(now.time())
     is_discrete = True
-    n_acts = 2
+    n_acts = opt.n_act
     dis_or_cont = "D" if is_discrete else "C"
     alg = opt.alg
     outdir = opt.outdir
