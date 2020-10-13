@@ -3,7 +3,11 @@
 
 
 ### Setup ###
-* Create virtural env
+* Clone Repo
+```
+git clone https://github.com/maestro-project/confuciux.git
+```
+* Create virtual env
 ```
 conda create --name confxEnv python=3.6
 conda activate confxEnv
