@@ -68,6 +68,8 @@ User can defined customized action space in src/utils/get_action_space.py
 ```
 python main.py --help
 ```
+### Note ###
+* Support stable maestro version: commit id: f1df103
 
 ### Contributor ###
 * Sheng-Chun (Felix) Kao
@@ -83,5 +85,4 @@ python main.py --help
   year          = {2020}
 }
 ```
-### Note ###
-* Support stable maestro version: commit id: f1df103
+
