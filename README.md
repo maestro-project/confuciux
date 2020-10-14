@@ -68,7 +68,7 @@ User can defined customized action space in src/utils/get_action_space.py
 ```
 python main.py --help
 ```
-### Note ###
+#### Note ####
 * Support stable maestro version: commit id: f1df103
 
 ### Contributor ###
