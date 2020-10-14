@@ -84,6 +84,4 @@ python main.py --help
 }
 ```
 ### Note ###
-```
 * Support stable maestro version: commit id: f1df103
-```
