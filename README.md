@@ -1,5 +1,11 @@
 # ConfuciuX #
+This is the implementation of the paper [ConfuciuX: Autonomous Hardware Resource Assignment for DNN Accelerators using Reinforcement Learning](https://cpb-us-w2.wpmucdn.com/sites.gatech.edu/dist/c/332/files/2020/08/gamma_iccad2020.pdf). 
+ConfuciuX is an autonomous framework for optimizing the HW resources assignment of DNN models on the DNN Accelerators. This repository includes ConfuciuX, 
+a two-stage optimization via designed RL-based and GA-based algorithms, a HW cost evaluation environment with a HW cost model, [MAESTRO](http://maestro.ece.gatech.edu/), embedded, 
+other reinforcement learning-based optimizations supported by [stable-baselines](https://github.com/hill-a/stable-baselines), 
+and other conventional optimization methods (e.g., bayesian, annealing).
 
+![ConfuciuX_Framework](./others/confuciux.jpg)
 
 
 ### Setup ###
