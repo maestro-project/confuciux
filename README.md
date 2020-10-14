@@ -83,3 +83,7 @@ python main.py --help
   year          = {2020}
 }
 ```
+### Note ###
+```
+* Support stable maestro version: commit id: f1df103
+```
