@@ -68,8 +68,10 @@ User can defined customized action space in src/utils/get_action_space.py
 ```
 python main.py --help
 ```
-#### Note ####
-* Support stable maestro version: commit id: f1df103
+### Resources
+* Tutorial of ConfuciuX,  in IEEE/ACM International Symposium on Microarchitecture (MICRO), 2020 [[video](https://www.youtube.com/watch?v=qHuO_38CdWQ)]
+* Main paper presentation, in IEEE/ACM International Symposium on Microarchitecture (MICRO), 2020 [[video](https://www.youtube.com/watch?v=dgB18p2iWNY)]
+
 
 ### Contributor ###
 * Sheng-Chun (Felix) Kao
@@ -85,4 +87,3 @@ python main.py --help
   year          = {2020}
 }
 ```
-
