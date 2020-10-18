@@ -71,7 +71,7 @@ python main.py --help
 ### Resources
 * Tutorial of ConfuciuX,  in IEEE/ACM International Symposium on Microarchitecture (MICRO), 2020 [[video](https://www.youtube.com/watch?v=qHuO_38CdWQ)]
 * Main paper presentation, in IEEE/ACM International Symposium on Microarchitecture (MICRO), 2020 [[video](https://www.youtube.com/watch?v=dgB18p2iWNY)]
-
+* Main paper : ConfuciuX: Autonomous Hardware Resource Assignment for DNN Accelerators using Reinforcement Learning, MICRO, 2020 [[paper](https://arxiv.org/pdf/2009.02010.pdf)]
 
 ### Contributor ###
 * Sheng-Chun (Felix) Kao
