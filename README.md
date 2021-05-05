@@ -83,7 +83,7 @@ python main.py --help
 @inproceedings{confuciux,
     author       = {Kao, Sheng-Chun and Jeong, Geonhwa and Krishna, Tushar},
     title        = {{ConfuciuX: Autonomous Hardware Resource Assignment for DNN Accelerators using Reinforcement Learning}},
-    booktitle     = {Proceedings of the 52nd Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)},
+    booktitle     = {Proceedings of the 53rd Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)},
   year          = {2020}
 }
 ```
