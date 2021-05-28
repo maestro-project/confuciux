@@ -81,9 +81,15 @@ python main.py --help
 ### Citation ###
 ```
 @inproceedings{confuciux,
-    author       = {Kao, Sheng-Chun and Jeong, Geonhwa and Krishna, Tushar},
-    title        = {{ConfuciuX: Autonomous Hardware Resource Assignment for DNN Accelerators using Reinforcement Learning}},
-    booktitle     = {Proceedings of the 53rd Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)},
-  year          = {2020}
+  author    = {Sheng{-}Chun Kao and
+               Geonhwa Jeong and
+               Tushar Krishna},
+  title     = {ConfuciuX: Autonomous Hardware Resource Assignment for {DNN} Accelerators
+               using Reinforcement Learning},
+  booktitle = {53rd Annual {IEEE/ACM} International Symposium on Microarchitecture,
+               {MICRO}},
+  pages     = {622--636},
+  publisher = {{IEEE}},
+  year      = {2020},
 }
 ```
